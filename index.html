@@ -59,7 +59,7 @@
 <body>
   <h1>Controle de Borderô - Feijoada do Nosso Tom</h1>
 
-  <!-- Ingressos Antecipados -->
+  <!-- Vendas Antecipadas -->
   <div class="section">
     <h2>Ingressos Vendidos Antecipados</h2>
     <input id="setorInput" placeholder="Setor (Ex: Pista, Camarote)">
@@ -70,18 +70,18 @@
     <div class="total">Total: <span id="totalIngressos">0</span></div>
   </div>
 
-  <!-- Ingressos Bilheteria -->
+  <!-- Bilheteria -->
   <div class="section">
     <h2>Ingressos Vendidos na Bilheteria</h2>
-    <input type="text" id="setorBilheteria" placeholder="Setor (ex: Pista, Camarote)" />
-    <input type="number" id="qtdBilheteria" placeholder="Quantidade" />
-    <input type="number" id="valorBilheteria" placeholder="Valor Unitário" />
+    <input id="setorBilheteria" placeholder="Setor (Ex: Pista, Camarote)">
+    <input type="number" id="qtdBilheteria" placeholder="Quantidade">
+    <input type="number" id="valorBilheteria" placeholder="Valor Unitário">
     <button class="btn" onclick="adicionarOuSomar('Bilheteria')">Adicionar</button>
     <ul id="listaBilheteria"></ul>
     <div class="total">Total: <span id="totalBilheteria">0</span></div>
   </div>
 
-  <!-- Liberações Nabêra -->
+  <!-- Liberação Nabêra -->
   <div class="section">
     <h2>Liberações Nabêra</h2>
     <input id="nomeNabera" placeholder="Nome de quem liberou">
@@ -91,7 +91,7 @@
     <ul id="listaNabera"></ul>
   </div>
 
-  <!-- Liberações Nosso Tom -->
+  <!-- Liberação Nosso Tom -->
   <div class="section">
     <h2>Liberações Nosso Tom</h2>
     <input id="nomeNossoTom" placeholder="Nome de quem liberou">
@@ -125,10 +125,156 @@
     <ul id="listaObs"></ul>
   </div>
 
-  <!-- Botões finais -->
+  <!-- Botões -->
   <div class="section">
     <button class="btn" onclick="gerarBorderoNaTela()">Ver Borderô na Tela</button>
     <button class="btn" onclick="exportarPDF()">Exportar Borderô em PDF</button>
   </div>
+
+<script>
+function adicionarOuSomar(tipo) {
+  let nome, qtd, valor = 0, destino = '', listaId;
+  if (tipo === 'Ingressos') {
+    nome = document.getElementById("setorInput").value.trim();
+    qtd = parseInt(document.getElementById("qtdIngressoInput").value);
+    valor = parseFloat(document.getElementById("valorIngressoInput").value);
+    listaId = "listaIngressos";
+  } else if (tipo === 'Bilheteria') {
+    nome = document.getElementById("setorBilheteria").value.trim();
+    qtd = parseInt(document.getElementById("qtdBilheteria").value);
+    valor = parseFloat(document.getElementById("valorBilheteria").value);
+    listaId = "listaBilheteria";
+  } else if (tipo === 'Nabera') {
+    nome = document.getElementById("nomeNabera").value.trim();
+    qtd = parseInt(document.getElementById("qtdNabera").value);
+    destino = document.getElementById("destinoNabera").value.trim();
+    listaId = "listaNabera";
+  } else if (tipo === 'NossoTom') {
+    nome = document.getElementById("nomeNossoTom").value.trim();
+    qtd = parseInt(document.getElementById("qtdNossoTom").value);
+    destino = document.getElementById("destinoNossoTom").value.trim();
+    listaId = "listaNossoTom";
+  } else if (tipo === 'Disponiveis') {
+    nome = 'Abadás Disponíveis';
+    qtd = parseInt(document.getElementById("abadasDisponiveis").value);
+    listaId = "listaDisponiveis";
+  } else if (tipo === 'Entregues') {
+    nome = 'Abadás Entregues';
+    qtd = parseInt(document.getElementById("abadasEntregues").value);
+    listaId = "listaEntregues";
+  } else if (tipo === 'Obs') {
+    const obs = document.getElementById("obsInput").value.trim();
+    if (obs) {
+      const li = document.createElement("li");
+      li.textContent = obs;
+      const btn = document.createElement("button");
+      btn.textContent = "Excluir";
+      btn.className = "delete-btn";
+      btn.onclick = () => li.remove();
+      li.appendChild(btn);
+      document.getElementById("listaObs").appendChild(li);
+      document.getElementById("obsInput").value = "";
+    }
+    return;
+  }
+
+  if (!nome || isNaN(qtd)) return;
+  const lista = document.getElementById(listaId);
+  const key = tipo === 'Nabera' || tipo === 'NossoTom' ? `${nome}|${destino}` : nome;
+  const itens = Array.from(lista.children);
+  const existente = itens.find(li => li.dataset.key === key);
+
+  const total = valor * qtd;
+
+  if (existente) {
+    const atualQtd = parseInt(existente.dataset.qtd);
+    const atualTotal = parseFloat(existente.dataset.total);
+    const novoQtd = atualQtd + qtd;
+    const novoTotal = atualTotal + total;
+    existente.dataset.qtd = novoQtd;
+    existente.dataset.total = novoTotal;
+    existente.firstChild.textContent = `${nome}${destino ? ' → ' + destino : ''}: ${novoQtd} - R$ ${novoTotal.toFixed(2)}`;
+  } else {
+    const li = document.createElement("li");
+    li.dataset.key = key;
+    li.dataset.qtd = qtd;
+    li.dataset.total = isNaN(total) ? 0 : total;
+    li.innerHTML = `${nome}${destino ? ' → ' + destino : ''}: ${qtd}${!isNaN(valor) && valor > 0 ? ` - R$ ${total.toFixed(2)}` : ''} <button class='delete-btn' onclick='this.parentElement.remove()'>Excluir</button>`;
+    lista.appendChild(li);
+  }
+
+  // Limpar campos
+  const limparCampos = (ids) => ids.forEach(id => document.getElementById(id).value = "");
+  if (tipo === 'Ingressos') limparCampos(["setorInput", "qtdIngressoInput", "valorIngressoInput"]);
+  if (tipo === 'Bilheteria') limparCampos(["setorBilheteria", "qtdBilheteria", "valorBilheteria"]);
+  if (tipo === 'Nabera') limparCampos(["nomeNabera", "qtdNabera", "destinoNabera"]);
+  if (tipo === 'NossoTom') limparCampos(["nomeNossoTom", "qtdNossoTom", "destinoNossoTom"]);
+  if (tipo === 'Disponiveis') limparCampos(["abadasDisponiveis"]);
+  if (tipo === 'Entregues') limparCampos(["abadasEntregues"]);
+}
+
+function gerarBorderoNaTela() {
+  const borderoWindow = window.open('', '_blank');
+  borderoWindow.document.write('<html><head><title>Borderô</title></head><body>');
+  borderoWindow.document.write('<h1>Borderô - Feijoada do Nosso Tom</h1>');
+  const sections = ['Ingressos', 'Bilheteria', 'Nabera', 'NossoTom', 'Disponiveis', 'Entregues', 'Obs'];
+  sections.forEach(id => {
+    const lista = document.getElementById(`lista${id}`);
+    if (lista.children.length > 0) {
+      borderoWindow.document.write(`<h2>${lista.previousElementSibling.innerText}</h2><ul>`);
+      for (let item of lista.children) {
+        borderoWindow.document.write(`<li>${item.innerText.replace('Excluir','')}</li>`);
+      }
+      borderoWindow.document.write('</ul>');
+    }
+  });
+  borderoWindow.document.write('</body></html>');
+  borderoWindow.document.close();
+}
+
+async function exportarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 10;
+  doc.setFontSize(16);
+  doc.text("Borderô - Feijoada do Nosso Tom", 10, y);
+  y += 10;
+
+  const sections = [
+    { id: 'listaIngressos', title: 'Ingressos Vendidos Antecipados' },
+    { id: 'listaBilheteria', title: 'Ingressos Vendidos na Bilheteria' },
+    { id: 'listaNabera', title: 'Liberações Nabêra' },
+    { id: 'listaNossoTom', title: 'Liberações Nosso Tom' },
+    { id: 'listaDisponiveis', title: 'Abadás Disponíveis' },
+    { id: 'listaEntregues', title: 'Abadás Entregues' },
+    { id: 'listaObs', title: 'Observações' }
+  ];
+
+  for (const sec of sections) {
+    const lista = document.getElementById(sec.id);
+    if (lista.children.length > 0) {
+      doc.setFontSize(14);
+      doc.text(sec.title, 10, y);
+      y += 8;
+      doc.setFontSize(12);
+      for (let item of lista.children) {
+        const text = item.innerText.replace('Excluir', '').trim();
+        const lines = doc.splitTextToSize(text, 180);
+        for (const line of lines) {
+          if (y > 280) {
+            doc.addPage();
+            y = 10;
+          }
+          doc.text(line, 10, y);
+          y += 6;
+        }
+      }
+      y += 6;
+    }
+  }
+
+  doc.save("bordero-nosso-tom.pdf");
+}
+</script>
 </body>
 </html>
