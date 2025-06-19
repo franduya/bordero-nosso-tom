@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Borderô - Feijoada do Nosso Tom</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,10 +14,10 @@
       background-color: white;
       color: black;
     }
-    h1, h2, h3 {
+    h1, h2 {
       color: black;
     }
-    input, textarea, select, button {
+    input, textarea, button {
       margin: 5px 0;
       padding: 8px;
       width: 100%;
@@ -29,6 +30,8 @@
       background-color: #333;
       color: white;
       border: none;
+      padding: 10px;
+      margin-top: 5px;
       cursor: pointer;
     }
     .btn:hover {
@@ -37,9 +40,9 @@
     ul {
       padding-left: 20px;
     }
-    ul li {
-      color: black;
+    li {
       margin-bottom: 5px;
+      color: black;
     }
     .delete-btn {
       background-color: red;
@@ -53,12 +56,6 @@
 </head>
 <body>
   <h1>Controle de Borderô - Feijoada do Nosso Tom</h1>
-
-  <div class="section">
-    <button class="btn" onclick="gerarBorderoNaTela()">Ver Borderô na Tela</button>
-    <button class="btn" onclick="exportarPDF()">Exportar Borderô em PDF</button>
-  </div>
-
   <!-- Ingressos -->
   <div class="section">
     <h2>Ingressos Vendidos Antecipados</h2>
@@ -110,153 +107,134 @@
     <ul id="listaObs"></ul>
   </div>
 
-  <script>
-    const ingressos = {};
-    const nabera = {};
-    const nossoTom = {};
-    const abadasDisponiveis = [];
-    const abadasEntregues = [];
-    const observacoes = [];
+  <!-- Botões finais -->
+  <div class="section">
+    <button class="btn" onclick="gerarBorderoNaTela()">Ver Borderô na Tela</button>
+    <button class="btn" onclick="exportarPDF()">Exportar Borderô em PDF</button>
+  </div>
+<script>
+  function adicionarItem(listaId, texto) {
+    const ul = document.getElementById(listaId);
+    const li = document.createElement("li");
+    li.innerHTML = `${texto} <button class="delete-btn" onclick="this.parentElement.remove();">Excluir</button>`;
+    ul.appendChild(li);
+  }
 
-    function criarItem(texto, removerCallback) {
-      const li = document.createElement("li");
-      li.textContent = texto;
-      const btn = document.createElement("button");
-      btn.textContent = "Excluir";
-      btn.className = "delete-btn";
-      btn.onclick = () => {
-        removerCallback();
-        li.remove();
-      };
-      li.appendChild(btn);
-      return li;
+  function adicionarIngresso() {
+    const setor = document.getElementById("setorInput").value;
+    const qtd = document.getElementById("qtdIngressoInput").value;
+    if (setor && qtd) {
+      adicionarItem("listaIngressos", `${setor}: ${qtd} ingresso(s)`);
+      document.getElementById("setorInput").value = "";
+      document.getElementById("qtdIngressoInput").value = "";
     }
+  }
 
-    function adicionarIngresso() {
-      const setor = document.getElementById("setorInput").value;
-      const qtd = parseInt(document.getElementById("qtdIngressoInput").value);
-      if (setor && qtd) {
-        ingressos[setor] = (ingressos[setor] || 0) + qtd;
-        const item = criarItem(`${setor}: ${ingressos[setor]}`, () => {
-          delete ingressos[setor];
-        });
-        document.getElementById("listaIngressos").appendChild(item);
-        document.getElementById("setorInput").value = "";
-        document.getElementById("qtdIngressoInput").value = "";
+  function adicionarNabera() {
+    const nome = document.getElementById("nomeNabera").value;
+    const qtd = document.getElementById("qtdNabera").value;
+    if (nome && qtd) {
+      adicionarItem("listaNabera", `${nome}: ${qtd} liberação(ões)`);
+      document.getElementById("nomeNabera").value = "";
+      document.getElementById("qtdNabera").value = "";
+    }
+  }
+
+  function adicionarNossoTom() {
+    const nome = document.getElementById("nomeNossoTom").value;
+    const qtd = document.getElementById("qtdNossoTom").value;
+    if (nome && qtd) {
+      adicionarItem("listaNossoTom", `${nome}: ${qtd} liberação(ões)`);
+      document.getElementById("nomeNossoTom").value = "";
+      document.getElementById("qtdNossoTom").value = "";
+    }
+  }
+
+  function adicionarDisponivel() {
+    const qtd = document.getElementById("abadasDisponiveis").value;
+    if (qtd) {
+      adicionarItem("listaDisponiveis", `${qtd} abadás disponíveis`);
+      document.getElementById("abadasDisponiveis").value = "";
+    }
+  }
+
+  function adicionarEntregue() {
+    const qtd = document.getElementById("abadasEntregues").value;
+    if (qtd) {
+      adicionarItem("listaEntregues", `${qtd} abadás entregues`);
+      document.getElementById("abadasEntregues").value = "";
+    }
+  }
+
+  function adicionarObs() {
+    const obs = document.getElementById("obsInput").value;
+    if (obs) {
+      adicionarItem("listaObs", obs);
+      document.getElementById("obsInput").value = "";
+    }
+  }
+
+  function gerarBorderoNaTela() {
+    const borderoWindow = window.open('', '_blank');
+    borderoWindow.document.write('<html><head><title>Borderô</title></head><body>');
+    borderoWindow.document.write('<h1>Borderô - Feijoada do Nosso Tom</h1>');
+    const sections = ['Ingressos', 'Nabera', 'NossoTom', 'Disponiveis', 'Entregues', 'Obs'];
+    sections.forEach(id => {
+      const lista = document.getElementById(`lista${id}`);
+      if (lista.children.length > 0) {
+        borderoWindow.document.write(`<h2>${lista.previousElementSibling.innerText}</h2><ul>`);
+        for (let item of lista.children) {
+          borderoWindow.document.write(`<li>${item.innerText.replace('Excluir','')}</li>`);
+        }
+        borderoWindow.document.write('</ul>');
+      }
+    });
+    borderoWindow.document.write('</body></html>');
+    borderoWindow.document.close();
+  }
+
+  async function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+    doc.setFontSize(16);
+    doc.text("Borderô - Feijoada do Nosso Tom", 10, y);
+    y += 10;
+
+    const sections = [
+      { id: 'listaIngressos', title: 'Ingressos Vendidos Antecipados' },
+      { id: 'listaNabera', title: 'Liberações Nabêra' },
+      { id: 'listaNossoTom', title: 'Liberações Nosso Tom' },
+      { id: 'listaDisponiveis', title: 'Abadás Disponíveis' },
+      { id: 'listaEntregues', title: 'Abadás Entregues' },
+      { id: 'listaObs', title: 'Observações' }
+    ];
+
+    for (const sec of sections) {
+      const lista = document.getElementById(sec.id);
+      if (lista.children.length > 0) {
+        doc.setFontSize(14);
+        doc.text(sec.title, 10, y);
+        y += 8;
+        doc.setFontSize(12);
+        for (let item of lista.children) {
+          const text = item.innerText.replace('Excluir', '').trim();
+          const lines = doc.splitTextToSize(text, 180);
+          for (const line of lines) {
+            if (y > 280) {
+              doc.addPage();
+              y = 10;
+            }
+            doc.text(line, 10, y);
+            y += 6;
+          }
+        }
+        y += 6;
       }
     }
 
-    function adicionarNabera() {
-      const nome = document.getElementById("nomeNabera").value;
-      const qtd = parseInt(document.getElementById("qtdNabera").value);
-      if (nome && qtd) {
-        nabera[nome] = (nabera[nome] || 0) + qtd;
-        const item = criarItem(`${nome}: ${nabera[nome]}`, () => {
-          delete nabera[nome];
-        });
-        document.getElementById("listaNabera").appendChild(item);
-        document.getElementById("nomeNabera").value = "";
-        document.getElementById("qtdNabera").value = "";
-      }
-    }
-
-    function adicionarNossoTom() {
-      const nome = document.getElementById("nomeNossoTom").value;
-      const qtd = parseInt(document.getElementById("qtdNossoTom").value);
-      if (nome && qtd) {
-        nossoTom[nome] = (nossoTom[nome] || 0) + qtd;
-        const item = criarItem(`${nome}: ${nossoTom[nome]}`, () => {
-          delete nossoTom[nome];
-        });
-        document.getElementById("listaNossoTom").appendChild(item);
-        document.getElementById("nomeNossoTom").value = "";
-        document.getElementById("qtdNossoTom").value = "";
-      }
-    }
-
-    function adicionarDisponivel() {
-      const qtd = parseInt(document.getElementById("abadasDisponiveis").value);
-      if (!isNaN(qtd)) {
-        abadasDisponiveis.push(qtd);
-        const item = criarItem(`${qtd}`, () => {
-          abadasDisponiveis.pop();
-        });
-        document.getElementById("listaDisponiveis").appendChild(item);
-        document.getElementById("abadasDisponiveis").value = "";
-      }
-    }
-
-    function adicionarEntregue() {
-      const qtd = parseInt(document.getElementById("abadasEntregues").value);
-      if (!isNaN(qtd)) {
-        abadasEntregues.push(qtd);
-        const item = criarItem(`${qtd}`, () => {
-          abadasEntregues.pop();
-        });
-        document.getElementById("listaEntregues").appendChild(item);
-        document.getElementById("abadasEntregues").value = "";
-      }
-    }
-
-    function adicionarObs() {
-      const obs = document.getElementById("obsInput").value;
-      if (obs) {
-        observacoes.push(obs);
-        const item = criarItem(obs, () => {
-          const index = observacoes.indexOf(obs);
-          if (index > -1) observacoes.splice(index, 1);
-        });
-        document.getElementById("listaObs").appendChild(item);
-        document.getElementById("obsInput").value = "";
-      }
-    }
-
-    function gerarBorderoNaTela() {
-      let resumo = "Resumo do Borderô:\\n\\n";
-
-      resumo += "Ingressos Vendidos:\\n";
-      for (const setor in ingressos) {
-        resumo += `- ${setor}: ${ingressos[setor]}\\n`;
-      }
-
-      resumo += "\\nLiberações Nabêra:\\n";
-      for (const nome in nabera) {
-        resumo += `- ${nome}: ${nabera[nome]}\\n`;
-      }
-
-      resumo += "\\nLiberações Nosso Tom:\\n";
-      for (const nome in nossoTom) {
-        resumo += `- ${nome}: ${nossoTom[nome]}\\n`;
-      }
-
-      const totalDisponiveis = abadasDisponiveis.reduce((a, b) => a + b, 0);
-      const totalEntregues = abadasEntregues.reduce((a, b) => a + b, 0);
-      const saldo = totalDisponiveis - totalEntregues;
-
-      resumo += "\\nAbadás:\\n";
-      resumo += `- Disponíveis: ${totalDisponiveis}\\n`;
-      resumo += `- Entregues: ${totalEntregues}\\n`;
-      resumo += `- Saldo: ${saldo}\\n`;
-
-      resumo += "\\nObservações:\\n";
-      observacoes.forEach(o => {
-        resumo += `- ${o}\\n`;
-      });
-
-      alert(resumo);
-    }
-
-    function exportarPDF() {
-      const texto = document.body.innerText;
-      const blob = new Blob([texto], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'bordero-nosso-tom.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-  </script>
+    doc.save("bordero-nosso-tom.pdf");
+  }
+</script>
 </body>
 </html>
