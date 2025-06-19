@@ -275,6 +275,52 @@ async function exportarPDF() {
 
   doc.save("bordero-nosso-tom.pdf");
 }
+  // Mapeamento de campos para botões
+document.addEventListener('DOMContentLoaded', () => {
+  const mapa = [
+    {
+      campos: ['setorInput', 'qtdIngressoInput', 'valorIngressoInput'],
+      func: () => adicionarOuSomar('Ingressos')
+    },
+    {
+      campos: ['setorBilheteria', 'qtdBilheteria', 'valorBilheteria'],
+      func: () => adicionarOuSomar('Bilheteria')
+    },
+    {
+      campos: ['nomeNabera', 'qtdNabera', 'destinoNabera'],
+      func: () => adicionarOuSomar('Nabera')
+    },
+    {
+      campos: ['nomeNossoTom', 'qtdNossoTom', 'destinoNossoTom'],
+      func: () => adicionarOuSomar('NossoTom')
+    },
+    {
+      campos: ['abadasDisponiveis'],
+      func: () => adicionarOuSomar('Disponiveis')
+    },
+    {
+      campos: ['abadasEntregues'],
+      func: () => adicionarOuSomar('Entregues')
+    },
+    {
+      campos: ['obsInput'],
+      func: () => adicionarOuSomar('Obs')
+    }
+  ];
+
+  mapa.forEach(grupo => {
+    grupo.campos.forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener('keyup', (e) => {
+          if (e.key === 'Enter') {
+            grupo.func();
+          }
+        });
+      }
+    });
+  });
+});
 </script>
 </body>
 </html>
