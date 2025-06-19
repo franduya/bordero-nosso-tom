@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Borderô - Feijoada do Nosso Tom</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,21 +14,29 @@
       background-color: white;
       color: black;
     }
-    h1, h2, h3 { color: black; }
+    h1, h2, h3 {
+      color: black;
+    }
     input, textarea, select, button {
       margin: 5px 0;
       padding: 8px;
       width: 100%;
     }
-    .section { margin-bottom: 30px; }
+    .section {
+      margin-bottom: 30px;
+    }
     .btn {
       background-color: #333;
       color: white;
       border: none;
       cursor: pointer;
     }
-    .btn:hover { opacity: 0.9; }
-    ul li { color: black; }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    ul li {
+      color: black;
+    }
     .output {
       background: #f4f4f4;
       padding: 10px;
@@ -40,8 +49,8 @@
 
   <div class="section">
     <h2>Ingressos Vendidos Antecipados</h2>
-    <input type="text" id="setor" placeholder="Setor (Ex: Pista, Camarote)" />
-    <input type="number" id="qtdIngresso" placeholder="Quantidade" />
+    <input type="text" id="setor" placeholder="Setor (Ex: Pista, Camarote)">
+    <input type="number" id="qtdIngresso" placeholder="Quantidade">
     <button class="btn" onclick="adicionarIngresso()">Adicionar</button>
     <ul id="listaIngressos"></ul>
     <div class="output" id="totalIngressos"></div>
@@ -49,23 +58,23 @@
 
   <div class="section">
     <h2>Liberações Nabêra</h2>
-    <input type="text" id="nomeNabera" placeholder="Nome (quem liberou)" />
-    <input type="number" id="qtdNabera" placeholder="Quantidade liberada" />
+    <input type="text" id="nomeNabera" placeholder="Nome (quem liberou)">
+    <input type="number" id="qtdNabera" placeholder="Quantidade liberada">
     <button class="btn" onclick="adicionarNabera()">Adicionar</button>
     <ul id="listaNabera"></ul>
   </div>
 
   <div class="section">
     <h2>Liberações Nosso Tom</h2>
-    <input type="text" id="nomeNossoTom" placeholder="Nome (quem liberou)" />
-    <input type="number" id="qtdNossoTom" placeholder="Quantidade liberada" />
+    <input type="text" id="nomeNossoTom" placeholder="Nome (quem liberou)">
+    <input type="number" id="qtdNossoTom" placeholder="Quantidade liberada">
     <button class="btn" onclick="adicionarNossoTom()">Adicionar</button>
     <ul id="listaNossoTom"></ul>
   </div>
 
   <div class="section">
     <h2>Abadás Disponíveis</h2>
-    <input type="number" id="abadaDisponivel" placeholder="Quantidade de Abadás" />
+    <input type="number" id="abadaDisponivel" placeholder="Quantidade de Abadás">
     <button class="btn" onclick="adicionarAbadaDisponivel()">Adicionar</button>
     <ul id="listaAbadaDisponivel"></ul>
     <div class="output" id="totalAbadasDisponiveis"></div>
@@ -73,7 +82,7 @@
 
   <div class="section">
     <h2>Abadás Entregues</h2>
-    <input type="number" id="abadaEntregue" placeholder="Quantidade de Abadás Entregues" />
+    <input type="number" id="abadaEntregue" placeholder="Quantidade de Abadás Entregues">
     <button class="btn" onclick="adicionarAbadaEntregue()">Adicionar</button>
     <ul id="listaAbadaEntregue"></ul>
     <div class="output" id="totalAbadasEntregues"></div>
@@ -82,20 +91,24 @@
 
   <div class="section">
     <h2>Observações</h2>
-    <input type="text" id="obsTexto" placeholder="Digite a observação" />
+    <input type="text" id="obsTexto" placeholder="Digite a observação">
     <button class="btn" onclick="adicionarObs()">Adicionar</button>
     <ul id="listaObs"></ul>
   </div>
 
   <div class="section">
-    <button class="btn" onclick="gerarPDF()">Exportar Borderô em PDF</button>
+    <button class="btn" onclick="gerarPDFReal()">Exportar Borderô em PDF</button>
     <button class="btn" onclick="gerarBorderoNaTela()">Gerar Borderô na Tela</button>
     <div class="output" id="resultadoBordero"></div>
   </div>
 
   <script>
-    const ingressos = {}, nabera = {}, nossoTom = {};
-    const abadasDisponiveis = [], abadasEntregues = [], observacoes = [];
+    const ingressos = {};
+    const nabera = {};
+    const nossoTom = {};
+    const abadasDisponiveis = [];
+    const abadasEntregues = [];
+    const observacoes = [];
 
     function adicionarIngresso() {
       const setor = document.getElementById('setor').value.trim();
@@ -152,9 +165,10 @@
       const texto = document.getElementById('obsTexto').value.trim();
       if (texto) {
         observacoes.push(texto);
+        const lista = document.getElementById('listaObs');
         const item = document.createElement('li');
         item.textContent = texto;
-        document.getElementById('listaObs').appendChild(item);
+        lista.appendChild(item);
         document.getElementById('obsTexto').value = '';
       }
     }
@@ -183,18 +197,19 @@
 
       listaDisp.innerHTML = '';
       listaEntr.innerHTML = '';
-      let somaDisp = 0, somaEntr = 0;
+      let somaDisp = 0;
+      let somaEntr = 0;
 
       abadasDisponiveis.forEach((qtd, i) => {
         const item = document.createElement('li');
-        item.textContent = `Entrada ${i + 1}: ${qtd}`;
+        item.textContent = `Entrada ${i+1}: ${qtd}`;
         listaDisp.appendChild(item);
         somaDisp += qtd;
       });
 
       abadasEntregues.forEach((qtd, i) => {
         const item = document.createElement('li');
-        item.textContent = `Entrega ${i + 1}: ${qtd}`;
+        item.textContent = `Entrega ${i+1}: ${qtd}`;
         listaEntr.appendChild(item);
         somaEntr += qtd;
       });
@@ -207,14 +222,23 @@
     function gerarBorderoNaTela() {
       let html = '<h3>Resumo do Borderô</h3>';
       html += '<strong>Ingressos Vendidos:</strong><ul>';
-      for (const setor in ingressos) html += `<li>${setor}: ${ingressos[setor]}</li>`;
-      html += '</ul><strong>Liberações Nabêra:</strong><ul>';
-      for (const nome in nabera) html += `<li>${nome}: ${nabera[nome]}</li>`;
-      html += '</ul><strong>Liberações Nosso Tom:</strong><ul>';
-      for (const nome in nossoTom) html += `<li>${nome}: ${nossoTom[nome]}</li>`;
-      const totalAbadas = abadasDisponiveis.reduce((a,b)=>a+b,0);
-      const totalEntregues = abadasEntregues.reduce((a,b)=>a+b,0);
-      html += `</ul><strong>Abadás:</strong><ul><li>Disponíveis: ${totalAbadas}</li><li>Entregues: ${totalEntregues}</li><li>Saldo: ${totalAbadas - totalEntregues}</li></ul>`;
+      for (const setor in ingressos) {
+        html += `<li>${setor}: ${ingressos[setor]}</li>`;
+      }
+      html += '</ul>';
+      html += '<strong>Liberações Nabêra:</strong><ul>';
+      for (const nome in nabera) {
+        html += `<li>${nome}: ${nabera[nome]}</li>`;
+      }
+      html += '</ul>';
+      html += '<strong>Liberações Nosso Tom:</strong><ul>';
+      for (const nome in nossoTom) {
+        html += `<li>${nome}: ${nossoTom[nome]}</li>`;
+      }
+      html += '</ul>';
+      const totalAbadas = abadasDisponiveis.reduce((a,b) => a+b, 0);
+      const totalEntregues = abadasEntregues.reduce((a,b) => a+b, 0);
+      html += `<strong>Abadás:</strong><ul><li>Disponíveis: ${totalAbadas}</li><li>Entregues: ${totalEntregues}</li><li>Saldo: ${totalAbadas - totalEntregues}</li></ul>`;
       if (observacoes.length) {
         html += '<strong>Observações:</strong><ul>';
         observacoes.forEach(obs => html += `<li>${obs}</li>`);
@@ -223,28 +247,60 @@
       document.getElementById('resultadoBordero').innerHTML = html;
     }
 
-    function gerarPDF() {
-      const bordero = document.getElementById('resultadoBordero').innerHTML;
-      const blob = new Blob([`<html><head><title>Borderô PDF</title><style>body { font-family: Arial; padding: 20px; } h3, strong { color: #000; } ul { list-style-type: disc; padding-left: 20px; }</style></head><body>${bordero}</body></html>`], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'bordero-nosso-tom.html';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+    async function gerarPDFReal() {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+      let y = 10;
+
+      pdf.setFontSize(14);
+      pdf.text("Resumo do Borderô", 10, y);
+      y += 10;
+
+      function adicionarTexto(titulo, dados) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text(titulo, 10, y);
+        y += 8;
+        pdf.setFont(undefined, 'normal');
+        for (const item in dados) {
+          pdf.text(`- ${item}: ${dados[item]}`, 12, y);
+          y += 7;
+        }
+      }
+
+      adicionarTexto("Ingressos Vendidos", ingressos);
+      adicionarTexto("Liberações Nabêra", nabera);
+      adicionarTexto("Liberações Nosso Tom", nossoTom);
+
+      const totalAbadas = abadasDisponiveis.reduce((a,b) => a+b, 0);
+      const totalEntregues = abadasEntregues.reduce((a,b) => a+b, 0);
+
+      pdf.text("Abadás:", 10, y);
+      y += 8;
+      pdf.text(`- Disponíveis: ${totalAbadas}`, 12, y); y += 7;
+      pdf.text(`- Entregues: ${totalEntregues}`, 12, y); y += 7;
+      pdf.text(`- Saldo: ${totalAbadas - totalEntregues}`, 12, y); y += 10;
+
+      if (observacoes.length) {
+        pdf.text("Observações:", 10, y);
+        y += 8;
+        observacoes.forEach(obs => {
+          pdf.text(`- ${obs}`, 12, y);
+          y += 7;
+        });
+      }
+
+      pdf.save("bordero-nosso-tom.pdf");
     }
 
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        const el = document.activeElement;
-        if (el.id === 'qtdIngresso') adicionarIngresso();
-        if (el.id === 'qtdNabera') adicionarNabera();
-        if (el.id === 'qtdNossoTom') adicionarNossoTom();
-        if (el.id === 'abadaDisponivel') adicionarAbadaDisponivel();
-        if (el.id === 'abadaEntregue') adicionarAbadaEntregue();
-        if (el.id === 'obsTexto') adicionarObs();
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        const active = document.activeElement;
+        if (active.id === 'qtdIngresso') adicionarIngresso();
+        if (active.id === 'qtdNabera') adicionarNabera();
+        if (active.id === 'qtdNossoTom') adicionarNossoTom();
+        if (active.id === 'abadaDisponivel') adicionarAbadaDisponivel();
+        if (active.id === 'abadaEntregue') adicionarAbadaEntregue();
+        if (active.id === 'obsTexto') adicionarObs();
       }
     });
   </script>
