@@ -62,9 +62,9 @@
   <!-- Ingressos -->
   <div class="section">
     <h2>Ingressos Vendidos Antecipados</h2>
-    <input id="setorInput" placeholder="Setor (Ex: Pista, Camarote)" onkeydown="if(event.key==='Enter') adicionarIngresso()">
-    <input type="number" id="qtdIngressoInput" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarIngresso()">
-    <button class="btn" onclick="adicionarIngresso()">Adicionar</button>
+    <input id="setorInput" placeholder="Setor (Ex: Pista, Camarote)" onkeydown="if(event.key==='Enter') adicionarOuSomar('Ingressos')">
+    <input type="number" id="qtdIngressoInput" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('Ingressos')">
+    <button class="btn" onclick="adicionarOuSomar('Ingressos')">Adicionar</button>
     <ul id="listaIngressos"></ul>
     <div class="total">Total: <span id="totalIngressos">0</span></div>
   </div>
@@ -72,42 +72,42 @@
   <!-- Liberação Nabera -->
   <div class="section">
     <h2>Liberações Nabêra</h2>
-    <input id="nomeNabera" placeholder="Nome" onkeydown="if(event.key==='Enter') adicionarNabera()">
-    <input type="number" id="qtdNabera" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarNabera()">
-    <button class="btn" onclick="adicionarNabera()">Adicionar</button>
+    <input id="nomeNabera" placeholder="Nome" onkeydown="if(event.key==='Enter') adicionarOuSomar('Nabera')">
+    <input type="number" id="qtdNabera" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('Nabera')">
+    <button class="btn" onclick="adicionarOuSomar('Nabera')">Adicionar</button>
     <ul id="listaNabera"></ul>
   </div>
 
   <!-- Liberação Nosso Tom -->
   <div class="section">
     <h2>Liberações Nosso Tom</h2>
-    <input id="nomeNossoTom" placeholder="Nome" onkeydown="if(event.key==='Enter') adicionarNossoTom()">
-    <input type="number" id="qtdNossoTom" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarNossoTom()">
-    <button class="btn" onclick="adicionarNossoTom()">Adicionar</button>
+    <input id="nomeNossoTom" placeholder="Nome" onkeydown="if(event.key==='Enter') adicionarOuSomar('NossoTom')">
+    <input type="number" id="qtdNossoTom" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('NossoTom')">
+    <button class="btn" onclick="adicionarOuSomar('NossoTom')">Adicionar</button>
     <ul id="listaNossoTom"></ul>
   </div>
 
   <!-- Abadás disponíveis -->
   <div class="section">
     <h2>Abadás Disponíveis</h2>
-    <input type="number" id="abadasDisponiveis" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarDisponivel()">
-    <button class="btn" onclick="adicionarDisponivel()">Adicionar</button>
+    <input type="number" id="abadasDisponiveis" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('Disponiveis')">
+    <button class="btn" onclick="adicionarOuSomar('Disponiveis')">Adicionar</button>
     <ul id="listaDisponiveis"></ul>
   </div>
 
   <!-- Abadás entregues -->
   <div class="section">
     <h2>Abadás Entregues</h2>
-    <input type="number" id="abadasEntregues" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarEntregue()">
-    <button class="btn" onclick="adicionarEntregue()">Adicionar</button>
+    <input type="number" id="abadasEntregues" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('Entregues')">
+    <button class="btn" onclick="adicionarOuSomar('Entregues')">Adicionar</button>
     <ul id="listaEntregues"></ul>
   </div>
 
   <!-- Observações -->
   <div class="section">
     <h2>Observações</h2>
-    <textarea id="obsInput" placeholder="Digite uma observação" onkeydown="if(event.key==='Enter') adicionarObs()"></textarea>
-    <button class="btn" onclick="adicionarObs()">Adicionar</button>
+    <textarea id="obsInput" placeholder="Digite uma observação" onkeydown="if(event.key==='Enter') adicionarOuSomar('Obs')"></textarea>
+    <button class="btn" onclick="adicionarOuSomar('Obs')">Adicionar</button>
     <ul id="listaObs"></ul>
   </div>
 
@@ -117,140 +117,149 @@
   </div>
 
 <script>
-  let totalIngressos = 0;
-  function adicionarItem(listaId, texto, qtd = 0, totalId = null) {
-    const ul = document.getElementById(listaId);
-    const li = document.createElement("li");
-    li.innerHTML = `${texto} <button class="delete-btn" onclick="this.parentElement.remove(); atualizarTotal('${listaId}', '${totalId}')">Excluir</button>`;
-    li.dataset.qtd = qtd;
-    ul.appendChild(li);
-    if (totalId) atualizarTotal(listaId, totalId);
-  }
-
-  function atualizarTotal(listaId, totalId) {
-    const lista = document.getElementById(listaId);
-    let total = 0;
-    for (let item of lista.children) {
-      total += parseInt(item.dataset.qtd || 0);
-    }
-    document.getElementById(totalId).innerText = total;
-  }
-
-  function adicionarIngresso() {
-    const setor = document.getElementById("setorInput").value;
-    const qtd = parseInt(document.getElementById("qtdIngressoInput").value);
-    if (setor && qtd) {
-      adicionarItem("listaIngressos", `${setor}: ${qtd} ingresso(s)`, qtd, "totalIngressos");
-      document.getElementById("setorInput").value = "";
-      document.getElementById("qtdIngressoInput").value = "";
-    }
-  }
-
-  function adicionarNabera() {
-    const nome = document.getElementById("nomeNabera").value;
-    const qtd = document.getElementById("qtdNabera").value;
-    if (nome && qtd) {
-      adicionarItem("listaNabera", `${nome}: ${qtd} liberação(ões)`);
-      document.getElementById("nomeNabera").value = "";
-      document.getElementById("qtdNabera").value = "";
-    }
-  }
-
-  function adicionarNossoTom() {
-    const nome = document.getElementById("nomeNossoTom").value;
-    const qtd = document.getElementById("qtdNossoTom").value;
-    if (nome && qtd) {
-      adicionarItem("listaNossoTom", `${nome}: ${qtd} liberação(ões)`);
-      document.getElementById("nomeNossoTom").value = "";
-      document.getElementById("qtdNossoTom").value = "";
-    }
-  }
-
-  function adicionarDisponivel() {
-    const qtd = document.getElementById("abadasDisponiveis").value;
-    if (qtd) {
-      adicionarItem("listaDisponiveis", `${qtd} abadás disponíveis`);
-      document.getElementById("abadasDisponiveis").value = "";
-    }
-  }
-
-  function adicionarEntregue() {
-    const qtd = document.getElementById("abadasEntregues").value;
-    if (qtd) {
-      adicionarItem("listaEntregues", `${qtd} abadás entregues`);
-      document.getElementById("abadasEntregues").value = "";
-    }
-  }
-
-  function adicionarObs() {
-    const obs = document.getElementById("obsInput").value;
+function adicionarOuSomar(tipo) {
+  let nome, qtd, listaId;
+  if (tipo === 'Ingressos') {
+    nome = document.getElementById("setorInput").value.trim();
+    qtd = parseInt(document.getElementById("qtdIngressoInput").value);
+    listaId = "listaIngressos";
+  } else if (tipo === 'Nabera') {
+    nome = document.getElementById("nomeNabera").value.trim();
+    qtd = parseInt(document.getElementById("qtdNabera").value);
+    listaId = "listaNabera";
+  } else if (tipo === 'NossoTom') {
+    nome = document.getElementById("nomeNossoTom").value.trim();
+    qtd = parseInt(document.getElementById("qtdNossoTom").value);
+    listaId = "listaNossoTom";
+  } else if (tipo === 'Disponiveis') {
+    nome = 'Abadás Disponíveis';
+    qtd = parseInt(document.getElementById("abadasDisponiveis").value);
+    listaId = "listaDisponiveis";
+  } else if (tipo === 'Entregues') {
+    nome = 'Abadás Entregues';
+    qtd = parseInt(document.getElementById("abadasEntregues").value);
+    listaId = "listaEntregues";
+  } else if (tipo === 'Obs') {
+    const obs = document.getElementById("obsInput").value.trim();
     if (obs) {
-      adicionarItem("listaObs", obs);
+      const li = document.createElement("li");
+      li.textContent = obs;
+      const btn = document.createElement("button");
+      btn.textContent = "Excluir";
+      btn.className = "delete-btn";
+      btn.onclick = () => li.remove();
+      li.appendChild(btn);
+      document.getElementById("listaObs").appendChild(li);
       document.getElementById("obsInput").value = "";
     }
+    return;
   }
 
-  function gerarBorderoNaTela() {
-    const borderoWindow = window.open('', '_blank');
-    borderoWindow.document.write('<html><head><title>Borderô</title></head><body>');
-    borderoWindow.document.write('<h1>Borderô - Feijoada do Nosso Tom</h1>');
-    const sections = ['Ingressos', 'Nabera', 'NossoTom', 'Disponiveis', 'Entregues', 'Obs'];
-    sections.forEach(id => {
-      const lista = document.getElementById(`lista${id}`);
-      if (lista.children.length > 0) {
-        borderoWindow.document.write(`<h2>${lista.previousElementSibling.innerText}</h2><ul>`);
-        for (let item of lista.children) {
-          borderoWindow.document.write(`<li>${item.innerText.replace('Excluir','')}</li>`);
-        }
-        borderoWindow.document.write('</ul>');
-      }
-    });
-    borderoWindow.document.write('</body></html>');
-    borderoWindow.document.close();
+  if (!nome || isNaN(qtd)) return;
+  const lista = document.getElementById(listaId);
+  const itens = Array.from(lista.children);
+  const existente = itens.find(li => li.dataset.nome === nome);
+
+  if (existente) {
+    const atual = parseInt(existente.dataset.qtd);
+    const novo = atual + qtd;
+    existente.dataset.qtd = novo;
+    existente.firstChild.textContent = `${nome}: ${novo} ${tipo === 'Ingressos' ? 'ingresso(s)' : tipo === 'Nabera' || tipo === 'NossoTom' ? 'liberação(ões)' : 'unidade(s)'}`;
+  } else {
+    const li = document.createElement("li");
+    li.dataset.nome = nome;
+    li.dataset.qtd = qtd;
+    li.innerHTML = `${nome}: ${qtd} ${tipo === 'Ingressos' ? 'ingresso(s)' : tipo === 'Nabera' || tipo === 'NossoTom' ? 'liberação(ões)' : 'unidade(s)'} <button class='delete-btn' onclick='this.parentElement.remove()'>Excluir</button>`;
+    lista.appendChild(li);
   }
 
-  async function exportarPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 10;
-    doc.setFontSize(16);
-    doc.text("Borderô - Feijoada do Nosso Tom", 10, y);
-    y += 10;
+  if (tipo === 'Ingressos') {
+    document.getElementById("setorInput").value = "";
+    document.getElementById("qtdIngressoInput").value = "";
+    atualizarTotal("listaIngressos", "totalIngressos");
+  } else if (tipo === 'Nabera') {
+    document.getElementById("nomeNabera").value = "";
+    document.getElementById("qtdNabera").value = "";
+  } else if (tipo === 'NossoTom') {
+    document.getElementById("nomeNossoTom").value = "";
+    document.getElementById("qtdNossoTom").value = "";
+  } else if (tipo === 'Disponiveis') {
+    document.getElementById("abadasDisponiveis").value = "";
+  } else if (tipo === 'Entregues') {
+    document.getElementById("abadasEntregues").value = "";
+  }
+}
 
-    const sections = [
-      { id: 'listaIngressos', title: 'Ingressos Vendidos Antecipados' },
-      { id: 'listaNabera', title: 'Liberações Nabêra' },
-      { id: 'listaNossoTom', title: 'Liberações Nosso Tom' },
-      { id: 'listaDisponiveis', title: 'Abadás Disponíveis' },
-      { id: 'listaEntregues', title: 'Abadás Entregues' },
-      { id: 'listaObs', title: 'Observações' }
-    ];
+function atualizarTotal(listaId, totalId) {
+  const lista = document.getElementById(listaId);
+  let total = 0;
+  for (let item of lista.children) {
+    total += parseInt(item.dataset.qtd || 0);
+  }
+  document.getElementById(totalId).innerText = total;
+}
 
-    for (const sec of sections) {
-      const lista = document.getElementById(sec.id);
-      if (lista.children.length > 0) {
-        doc.setFontSize(14);
-        doc.text(sec.title, 10, y);
-        y += 8;
-        doc.setFontSize(12);
-        for (let item of lista.children) {
-          const text = item.innerText.replace('Excluir', '').trim();
-          const lines = doc.splitTextToSize(text, 180);
-          for (const line of lines) {
-            if (y > 280) {
-              doc.addPage();
-              y = 10;
-            }
-            doc.text(line, 10, y);
-            y += 6;
-          }
-        }
-        y += 6;
+function gerarBorderoNaTela() {
+  const borderoWindow = window.open('', '_blank');
+  borderoWindow.document.write('<html><head><title>Borderô</title></head><body>');
+  borderoWindow.document.write('<h1>Borderô - Feijoada do Nosso Tom</h1>');
+  const sections = ['Ingressos', 'Nabera', 'NossoTom', 'Disponiveis', 'Entregues', 'Obs'];
+  sections.forEach(id => {
+    const lista = document.getElementById(`lista${id}`);
+    if (lista.children.length > 0) {
+      borderoWindow.document.write(`<h2>${lista.previousElementSibling.innerText}</h2><ul>`);
+      for (let item of lista.children) {
+        borderoWindow.document.write(`<li>${item.innerText.replace('Excluir','')}</li>`);
       }
+      borderoWindow.document.write('</ul>');
     }
+  });
+  borderoWindow.document.write('</body></html>');
+  borderoWindow.document.close();
+}
 
-    doc.save("bordero-nosso-tom.pdf");
+async function exportarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 10;
+  doc.setFontSize(16);
+  doc.text("Borderô - Feijoada do Nosso Tom", 10, y);
+  y += 10;
+
+  const sections = [
+    { id: 'listaIngressos', title: 'Ingressos Vendidos Antecipados' },
+    { id: 'listaNabera', title: 'Liberações Nabêra' },
+    { id: 'listaNossoTom', title: 'Liberações Nosso Tom' },
+    { id: 'listaDisponiveis', title: 'Abadás Disponíveis' },
+    { id: 'listaEntregues', title: 'Abadás Entregues' },
+    { id: 'listaObs', title: 'Observações' }
+  ];
+
+  for (const sec of sections) {
+    const lista = document.getElementById(sec.id);
+    if (lista.children.length > 0) {
+      doc.setFontSize(14);
+      doc.text(sec.title, 10, y);
+      y += 8;
+      doc.setFontSize(12);
+      for (let item of lista.children) {
+        const text = item.innerText.replace('Excluir', '').trim();
+        const lines = doc.splitTextToSize(text, 180);
+        for (const line of lines) {
+          if (y > 280) {
+            doc.addPage();
+            y = 10;
+          }
+          doc.text(line, 10, y);
+          y += 6;
+        }
+      }
+      y += 6;
+    }
   }
+
+  doc.save("bordero-nosso-tom.pdf");
+}
 </script>
 </body>
 </html>
