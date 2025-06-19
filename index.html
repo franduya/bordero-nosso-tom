@@ -14,10 +14,10 @@
       background-color: white;
       color: black;
     }
-    h1, h2 {
+    h1, h2, h3 {
       color: black;
     }
-    input, textarea, button {
+    input, textarea, select, button {
       margin: 5px 0;
       padding: 8px;
       width: 100%;
@@ -30,8 +30,6 @@
       background-color: #333;
       color: white;
       border: none;
-      padding: 10px;
-      margin-top: 5px;
       cursor: pointer;
     }
     .btn:hover {
@@ -40,9 +38,9 @@
     ul {
       padding-left: 20px;
     }
-    li {
-      margin-bottom: 5px;
+    ul li {
       color: black;
+      margin-bottom: 5px;
     }
     .delete-btn {
       background-color: red;
@@ -52,10 +50,15 @@
       margin-left: 10px;
       cursor: pointer;
     }
+    .total {
+      font-weight: bold;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Controle de Borderô - Feijoada do Nosso Tom</h1>
+
   <!-- Ingressos -->
   <div class="section">
     <h2>Ingressos Vendidos Antecipados</h2>
@@ -63,6 +66,7 @@
     <input type="number" id="qtdIngressoInput" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarIngresso()">
     <button class="btn" onclick="adicionarIngresso()">Adicionar</button>
     <ul id="listaIngressos"></ul>
+    <div class="total">Total: <span id="totalIngressos">0</span></div>
   </div>
 
   <!-- Liberação Nabera -->
@@ -107,24 +111,36 @@
     <ul id="listaObs"></ul>
   </div>
 
-  <!-- Botões finais -->
   <div class="section">
     <button class="btn" onclick="gerarBorderoNaTela()">Ver Borderô na Tela</button>
     <button class="btn" onclick="exportarPDF()">Exportar Borderô em PDF</button>
   </div>
+
 <script>
-  function adicionarItem(listaId, texto) {
+  let totalIngressos = 0;
+  function adicionarItem(listaId, texto, qtd = 0, totalId = null) {
     const ul = document.getElementById(listaId);
     const li = document.createElement("li");
-    li.innerHTML = `${texto} <button class="delete-btn" onclick="this.parentElement.remove();">Excluir</button>`;
+    li.innerHTML = `${texto} <button class="delete-btn" onclick="this.parentElement.remove(); atualizarTotal('${listaId}', '${totalId}')">Excluir</button>`;
+    li.dataset.qtd = qtd;
     ul.appendChild(li);
+    if (totalId) atualizarTotal(listaId, totalId);
+  }
+
+  function atualizarTotal(listaId, totalId) {
+    const lista = document.getElementById(listaId);
+    let total = 0;
+    for (let item of lista.children) {
+      total += parseInt(item.dataset.qtd || 0);
+    }
+    document.getElementById(totalId).innerText = total;
   }
 
   function adicionarIngresso() {
     const setor = document.getElementById("setorInput").value;
-    const qtd = document.getElementById("qtdIngressoInput").value;
+    const qtd = parseInt(document.getElementById("qtdIngressoInput").value);
     if (setor && qtd) {
-      adicionarItem("listaIngressos", `${setor}: ${qtd} ingresso(s)`);
+      adicionarItem("listaIngressos", `${setor}: ${qtd} ingresso(s)`, qtd, "totalIngressos");
       document.getElementById("setorInput").value = "";
       document.getElementById("qtdIngressoInput").value = "";
     }
