@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Borderô - Feijoada do Nosso Tom</title>
   <style>
     body {
@@ -20,6 +20,7 @@
       margin: 5px 0;
       padding: 8px;
       width: 100%;
+      box-sizing: border-box;
     }
     .section {
       margin-bottom: 30px;
@@ -33,14 +34,12 @@
     .btn:hover {
       opacity: 0.9;
     }
+    ul {
+      padding-left: 20px;
+    }
     ul li {
       color: black;
       margin-bottom: 5px;
-    }
-    .output {
-      background: #f4f4f4;
-      padding: 10px;
-      margin-top: 10px;
     }
     .delete-btn {
       background-color: red;
@@ -56,234 +55,207 @@
   <h1>Controle de Borderô - Feijoada do Nosso Tom</h1>
 
   <div class="section">
-    <h2>Ingressos Vendidos Antecipados</h2>
-    <input type="text" id="setor" placeholder="Setor (Ex: Pista, Camarote)">
-    <input type="number" id="qtdIngresso" placeholder="Quantidade">
-    <button class="btn" onclick="adicionarIngresso()">Adicionar</button>
-    <ul id="listaIngressos"></ul>
-    <div class="output" id="totalIngressos"></div>
+    <button class="btn" onclick="gerarBorderoNaTela()">Ver Borderô na Tela</button>
+    <button class="btn" onclick="exportarPDF()">Exportar Borderô em PDF</button>
   </div>
 
+  <!-- Ingressos -->
+  <div class="section">
+    <h2>Ingressos Vendidos Antecipados</h2>
+    <input id="setorInput" placeholder="Setor (Ex: Pista, Camarote)" onkeydown="if(event.key==='Enter') adicionarIngresso()">
+    <input type="number" id="qtdIngressoInput" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarIngresso()">
+    <button class="btn" onclick="adicionarIngresso()">Adicionar</button>
+    <ul id="listaIngressos"></ul>
+  </div>
+
+  <!-- Liberação Nabera -->
   <div class="section">
     <h2>Liberações Nabêra</h2>
-    <input type="text" id="nomeNabera" placeholder="Nome do responsável">
-    <input type="number" id="qtdNabera" placeholder="Quantidade liberada">
+    <input id="nomeNabera" placeholder="Nome" onkeydown="if(event.key==='Enter') adicionarNabera()">
+    <input type="number" id="qtdNabera" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarNabera()">
     <button class="btn" onclick="adicionarNabera()">Adicionar</button>
     <ul id="listaNabera"></ul>
   </div>
 
+  <!-- Liberação Nosso Tom -->
   <div class="section">
     <h2>Liberações Nosso Tom</h2>
-    <input type="text" id="nomeTom" placeholder="Nome do responsável">
-    <input type="number" id="qtdTom" placeholder="Quantidade liberada">
-    <button class="btn" onclick="adicionarTom()">Adicionar</button>
-    <ul id="listaTom"></ul>
+    <input id="nomeNossoTom" placeholder="Nome" onkeydown="if(event.key==='Enter') adicionarNossoTom()">
+    <input type="number" id="qtdNossoTom" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarNossoTom()">
+    <button class="btn" onclick="adicionarNossoTom()">Adicionar</button>
+    <ul id="listaNossoTom"></ul>
   </div>
 
+  <!-- Abadás disponíveis -->
   <div class="section">
     <h2>Abadás Disponíveis</h2>
-    <input type="number" id="abadasDisponiveis" placeholder="Quantidade">
-    <button class="btn" onclick="adicionarAbadaDisponivel()">Adicionar</button>
-    <ul id="listaAbadasDisponiveis"></ul>
+    <input type="number" id="abadasDisponiveis" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarDisponivel()">
+    <button class="btn" onclick="adicionarDisponivel()">Adicionar</button>
+    <ul id="listaDisponiveis"></ul>
   </div>
 
+  <!-- Abadás entregues -->
   <div class="section">
     <h2>Abadás Entregues</h2>
-    <input type="number" id="abadasEntregues" placeholder="Quantidade">
-    <button class="btn" onclick="adicionarAbadaEntregue()">Adicionar</button>
-    <ul id="listaAbadasEntregues"></ul>
+    <input type="number" id="abadasEntregues" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarEntregue()">
+    <button class="btn" onclick="adicionarEntregue()">Adicionar</button>
+    <ul id="listaEntregues"></ul>
   </div>
 
+  <!-- Observações -->
   <div class="section">
     <h2>Observações</h2>
-    <input type="text" id="observacao" placeholder="Digite uma observação">
-    <button class="btn" onclick="adicionarObservacao()">Adicionar</button>
-    <ul id="listaObservacoes"></ul>
+    <textarea id="obsInput" placeholder="Digite uma observação" onkeydown="if(event.key==='Enter') adicionarObs()"></textarea>
+    <button class="btn" onclick="adicionarObs()">Adicionar</button>
+    <ul id="listaObs"></ul>
   </div>
 
   <script>
     const ingressos = {};
     const nabera = {};
     const nossoTom = {};
-    let abadasDisponiveis = [];
-    let abadasEntregues = [];
-    let observacoes = [];
+    const abadasDisponiveis = [];
+    const abadasEntregues = [];
+    const observacoes = [];
+
+    function criarItem(texto, removerCallback) {
+      const li = document.createElement("li");
+      li.textContent = texto;
+      const btn = document.createElement("button");
+      btn.textContent = "Excluir";
+      btn.className = "delete-btn";
+      btn.onclick = () => {
+        removerCallback();
+        li.remove();
+      };
+      li.appendChild(btn);
+      return li;
+    }
 
     function adicionarIngresso() {
-      const setor = document.getElementById('setor').value.trim();
-      const qtd = parseInt(document.getElementById('qtdIngresso').value);
-      if (setor && qtd > 0) {
+      const setor = document.getElementById("setorInput").value;
+      const qtd = parseInt(document.getElementById("qtdIngressoInput").value);
+      if (setor && qtd) {
         ingressos[setor] = (ingressos[setor] || 0) + qtd;
-        atualizarListaIngressos();
-        document.getElementById('setor').value = '';
-        document.getElementById('qtdIngresso').value = '';
+        const item = criarItem(`${setor}: ${ingressos[setor]}`, () => {
+          delete ingressos[setor];
+        });
+        document.getElementById("listaIngressos").appendChild(item);
+        document.getElementById("setorInput").value = "";
+        document.getElementById("qtdIngressoInput").value = "";
       }
-    }
-
-    function removerIngresso(setor) {
-      delete ingressos[setor];
-      atualizarListaIngressos();
-    }
-
-    function atualizarListaIngressos() {
-      const lista = document.getElementById('listaIngressos');
-      lista.innerHTML = '';
-      let soma = 0;
-      for (const setor in ingressos) {
-        const li = document.createElement('li');
-        li.textContent = `${setor}: ${ingressos[setor]}`;
-        const btn = document.createElement('button');
-        btn.textContent = 'Excluir';
-        btn.className = 'delete-btn';
-        btn.onclick = () => removerIngresso(setor);
-        li.appendChild(btn);
-        lista.appendChild(li);
-        soma += ingressos[setor];
-      }
-      document.getElementById('totalIngressos').textContent = `Total de ingressos vendidos: ${soma}`;
     }
 
     function adicionarNabera() {
-      const nome = document.getElementById('nomeNabera').value.trim();
-      const qtd = parseInt(document.getElementById('qtdNabera').value);
-      if (nome && qtd > 0) {
+      const nome = document.getElementById("nomeNabera").value;
+      const qtd = parseInt(document.getElementById("qtdNabera").value);
+      if (nome && qtd) {
         nabera[nome] = (nabera[nome] || 0) + qtd;
-        atualizarListaNabera();
-        document.getElementById('nomeNabera').value = '';
-        document.getElementById('qtdNabera').value = '';
+        const item = criarItem(`${nome}: ${nabera[nome]}`, () => {
+          delete nabera[nome];
+        });
+        document.getElementById("listaNabera").appendChild(item);
+        document.getElementById("nomeNabera").value = "";
+        document.getElementById("qtdNabera").value = "";
       }
     }
 
-    function removerNabera(nome) {
-      delete nabera[nome];
-      atualizarListaNabera();
-    }
-
-    function atualizarListaNabera() {
-      const lista = document.getElementById('listaNabera');
-      lista.innerHTML = '';
-      for (const nome in nabera) {
-        const li = document.createElement('li');
-        li.textContent = `${nome}: ${nabera[nome]}`;
-        const btn = document.createElement('button');
-        btn.textContent = 'Excluir';
-        btn.className = 'delete-btn';
-        btn.onclick = () => removerNabera(nome);
-        li.appendChild(btn);
-        lista.appendChild(li);
-      }
-    }
-
-    function adicionarTom() {
-      const nome = document.getElementById('nomeTom').value.trim();
-      const qtd = parseInt(document.getElementById('qtdTom').value);
-      if (nome && qtd > 0) {
+    function adicionarNossoTom() {
+      const nome = document.getElementById("nomeNossoTom").value;
+      const qtd = parseInt(document.getElementById("qtdNossoTom").value);
+      if (nome && qtd) {
         nossoTom[nome] = (nossoTom[nome] || 0) + qtd;
-        atualizarListaTom();
-        document.getElementById('nomeTom').value = '';
-        document.getElementById('qtdTom').value = '';
+        const item = criarItem(`${nome}: ${nossoTom[nome]}`, () => {
+          delete nossoTom[nome];
+        });
+        document.getElementById("listaNossoTom").appendChild(item);
+        document.getElementById("nomeNossoTom").value = "";
+        document.getElementById("qtdNossoTom").value = "";
       }
     }
 
-    function removerTom(nome) {
-      delete nossoTom[nome];
-      atualizarListaTom();
-    }
-
-    function atualizarListaTom() {
-      const lista = document.getElementById('listaTom');
-      lista.innerHTML = '';
-      for (const nome in nossoTom) {
-        const li = document.createElement('li');
-        li.textContent = `${nome}: ${nossoTom[nome]}`;
-        const btn = document.createElement('button');
-        btn.textContent = 'Excluir';
-        btn.className = 'delete-btn';
-        btn.onclick = () => removerTom(nome);
-        li.appendChild(btn);
-        lista.appendChild(li);
-      }
-    }
-
-    function adicionarAbadaDisponivel() {
-      const qtd = parseInt(document.getElementById('abadasDisponiveis').value);
-      if (qtd > 0) {
+    function adicionarDisponivel() {
+      const qtd = parseInt(document.getElementById("abadasDisponiveis").value);
+      if (!isNaN(qtd)) {
         abadasDisponiveis.push(qtd);
-        atualizarAbadasDisponiveis();
-        document.getElementById('abadasDisponiveis').value = '';
+        const item = criarItem(`${qtd}`, () => {
+          abadasDisponiveis.pop();
+        });
+        document.getElementById("listaDisponiveis").appendChild(item);
+        document.getElementById("abadasDisponiveis").value = "";
       }
     }
 
-    function atualizarAbadasDisponiveis() {
-      const lista = document.getElementById('listaAbadasDisponiveis');
-      lista.innerHTML = '';
-      abadasDisponiveis.forEach((qtd, index) => {
-        const li = document.createElement('li');
-        li.textContent = `${qtd} abadás`;
-        const btn = document.createElement('button');
-        btn.textContent = 'Excluir';
-        btn.className = 'delete-btn';
-        btn.onclick = () => {
-          abadasDisponiveis.splice(index, 1);
-          atualizarAbadasDisponiveis();
-        };
-        li.appendChild(btn);
-        lista.appendChild(li);
-      });
-    }
-
-    function adicionarAbadaEntregue() {
-      const qtd = parseInt(document.getElementById('abadasEntregues').value);
-      if (qtd > 0) {
+    function adicionarEntregue() {
+      const qtd = parseInt(document.getElementById("abadasEntregues").value);
+      if (!isNaN(qtd)) {
         abadasEntregues.push(qtd);
-        atualizarAbadasEntregues();
-        document.getElementById('abadasEntregues').value = '';
+        const item = criarItem(`${qtd}`, () => {
+          abadasEntregues.pop();
+        });
+        document.getElementById("listaEntregues").appendChild(item);
+        document.getElementById("abadasEntregues").value = "";
       }
     }
 
-    function atualizarAbadasEntregues() {
-      const lista = document.getElementById('listaAbadasEntregues');
-      lista.innerHTML = '';
-      abadasEntregues.forEach((qtd, index) => {
-        const li = document.createElement('li');
-        li.textContent = `${qtd} entregues`;
-        const btn = document.createElement('button');
-        btn.textContent = 'Excluir';
-        btn.className = 'delete-btn';
-        btn.onclick = () => {
-          abadasEntregues.splice(index, 1);
-          atualizarAbadasEntregues();
-        };
-        li.appendChild(btn);
-        lista.appendChild(li);
-      });
-    }
-
-    function adicionarObservacao() {
-      const texto = document.getElementById('observacao').value.trim();
-      if (texto) {
-        observacoes.push(texto);
-        atualizarObservacoes();
-        document.getElementById('observacao').value = '';
+    function adicionarObs() {
+      const obs = document.getElementById("obsInput").value;
+      if (obs) {
+        observacoes.push(obs);
+        const item = criarItem(obs, () => {
+          const index = observacoes.indexOf(obs);
+          if (index > -1) observacoes.splice(index, 1);
+        });
+        document.getElementById("listaObs").appendChild(item);
+        document.getElementById("obsInput").value = "";
       }
     }
 
-    function atualizarObservacoes() {
-      const lista = document.getElementById('listaObservacoes');
-      lista.innerHTML = '';
-      observacoes.forEach((obs, index) => {
-        const li = document.createElement('li');
-        li.textContent = obs;
-        const btn = document.createElement('button');
-        btn.textContent = 'Excluir';
-        btn.className = 'delete-btn';
-        btn.onclick = () => {
-          observacoes.splice(index, 1);
-          atualizarObservacoes();
-        };
-        li.appendChild(btn);
-        lista.appendChild(li);
+    function gerarBorderoNaTela() {
+      let resumo = "Resumo do Borderô:\\n\\n";
+
+      resumo += "Ingressos Vendidos:\\n";
+      for (const setor in ingressos) {
+        resumo += `- ${setor}: ${ingressos[setor]}\\n`;
+      }
+
+      resumo += "\\nLiberações Nabêra:\\n";
+      for (const nome in nabera) {
+        resumo += `- ${nome}: ${nabera[nome]}\\n`;
+      }
+
+      resumo += "\\nLiberações Nosso Tom:\\n";
+      for (const nome in nossoTom) {
+        resumo += `- ${nome}: ${nossoTom[nome]}\\n`;
+      }
+
+      const totalDisponiveis = abadasDisponiveis.reduce((a, b) => a + b, 0);
+      const totalEntregues = abadasEntregues.reduce((a, b) => a + b, 0);
+      const saldo = totalDisponiveis - totalEntregues;
+
+      resumo += "\\nAbadás:\\n";
+      resumo += `- Disponíveis: ${totalDisponiveis}\\n`;
+      resumo += `- Entregues: ${totalEntregues}\\n`;
+      resumo += `- Saldo: ${saldo}\\n`;
+
+      resumo += "\\nObservações:\\n";
+      observacoes.forEach(o => {
+        resumo += `- ${o}\\n`;
       });
+
+      alert(resumo);
+    }
+
+    function exportarPDF() {
+      const texto = document.body.innerText;
+      const blob = new Blob([texto], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bordero-nosso-tom.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
   </script>
 </body>
