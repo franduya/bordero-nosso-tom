@@ -45,6 +45,7 @@
 </head>
 <body>
   <h1>Controle de Borderô - Feijoada do Nosso Tom</h1>
+
   <div class="section">
     <h2>Ingressos Vendidos Antecipados</h2>
     <input type="text" id="setor" placeholder="Setor (Ex: Pista, Camarote)">
@@ -53,6 +54,7 @@
     <ul id="listaIngressos"></ul>
     <div class="output" id="totalIngressos"></div>
   </div>
+
   <div class="section">
     <h2>Liberações Nabêra</h2>
     <input type="text" id="nomeNabera" placeholder="Nome (quem liberou)">
@@ -60,6 +62,7 @@
     <button class="btn" onclick="adicionarNabera()">Adicionar</button>
     <ul id="listaNabera"></ul>
   </div>
+
   <div class="section">
     <h2>Liberações Nosso Tom</h2>
     <input type="text" id="nomeNossoTom" placeholder="Nome (quem liberou)">
@@ -67,6 +70,7 @@
     <button class="btn" onclick="adicionarNossoTom()">Adicionar</button>
     <ul id="listaNossoTom"></ul>
   </div>
+
   <div class="section">
     <h2>Abadás Disponíveis</h2>
     <input type="number" id="abadaDisponivel" placeholder="Quantidade de Abadás">
@@ -74,6 +78,7 @@
     <ul id="listaAbadaDisponivel"></ul>
     <div class="output" id="totalAbadasDisponiveis"></div>
   </div>
+
   <div class="section">
     <h2>Abadás Entregues</h2>
     <input type="number" id="abadaEntregue" placeholder="Quantidade de Abadás Entregues">
@@ -82,17 +87,20 @@
     <div class="output" id="totalAbadasEntregues"></div>
     <div class="output" id="saldoAbadas"></div>
   </div>
+
   <div class="section">
     <h2>Observações</h2>
     <input type="text" id="obsTexto" placeholder="Digite a observação">
     <button class="btn" onclick="adicionarObs()">Adicionar</button>
     <ul id="listaObs"></ul>
   </div>
+
   <div class="section">
-    <button class="btn" onclick="window.print()">Exportar Borderô em PDF</button>
+    <button class="btn" onclick="gerarPDF()">Exportar Borderô em PDF</button>
     <button class="btn" onclick="gerarBorderoNaTela()">Gerar Borderô na Tela</button>
     <div class="output" id="resultadoBordero"></div>
   </div>
+
   <script>
     const ingressos = {};
     const nabera = {};
@@ -242,6 +250,29 @@
       }
 
       document.getElementById('resultadoBordero').innerHTML = html;
+    }
+
+    function gerarPDF() {
+      const bordero = document.getElementById('resultadoBordero').innerHTML;
+      const win = window.open('', '', 'width=800,height=900');
+      win.document.write(`
+        <html>
+        <head>
+          <title>Borderô PDF</title>
+          <style>
+            body { font-family: Arial; padding: 20px; }
+            h3, strong { color: #000; }
+            ul { list-style-type: disc; padding-left: 20px; }
+          </style>
+        </head>
+        <body>
+          ${bordero}
+        </body>
+        </html>
+      `);
+      win.document.close();
+      win.focus();
+      win.print();
     }
 
     document.addEventListener('keydown', function(event) {
