@@ -72,8 +72,9 @@
   <!-- Liberação Nabera -->
   <div class="section">
     <h2>Liberações Nabêra</h2>
-    <input id="nomeNabera" placeholder="Nome" onkeydown="if(event.key==='Enter') adicionarOuSomar('Nabera')">
+    <input id="nomeNabera" placeholder="Nome de quem liberou" onkeydown="if(event.key==='Enter') adicionarOuSomar('Nabera')">
     <input type="number" id="qtdNabera" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('Nabera')">
+    <input id="destinoNabera" placeholder="Nome da pessoa liberada (opcional)" onkeydown="if(event.key==='Enter') adicionarOuSomar('Nabera')">
     <button class="btn" onclick="adicionarOuSomar('Nabera')">Adicionar</button>
     <ul id="listaNabera"></ul>
   </div>
@@ -81,8 +82,9 @@
   <!-- Liberação Nosso Tom -->
   <div class="section">
     <h2>Liberações Nosso Tom</h2>
-    <input id="nomeNossoTom" placeholder="Nome" onkeydown="if(event.key==='Enter') adicionarOuSomar('NossoTom')">
+    <input id="nomeNossoTom" placeholder="Nome de quem liberou" onkeydown="if(event.key==='Enter') adicionarOuSomar('NossoTom')">
     <input type="number" id="qtdNossoTom" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('NossoTom')">
+    <input id="destinoNossoTom" placeholder="Nome da pessoa liberada (opcional)" onkeydown="if(event.key==='Enter') adicionarOuSomar('NossoTom')">
     <button class="btn" onclick="adicionarOuSomar('NossoTom')">Adicionar</button>
     <ul id="listaNossoTom"></ul>
   </div>
@@ -118,7 +120,7 @@
 
 <script>
 function adicionarOuSomar(tipo) {
-  let nome, qtd, listaId;
+  let nome, qtd, destino = '', listaId;
   if (tipo === 'Ingressos') {
     nome = document.getElementById("setorInput").value.trim();
     qtd = parseInt(document.getElementById("qtdIngressoInput").value);
@@ -126,10 +128,12 @@ function adicionarOuSomar(tipo) {
   } else if (tipo === 'Nabera') {
     nome = document.getElementById("nomeNabera").value.trim();
     qtd = parseInt(document.getElementById("qtdNabera").value);
+    destino = document.getElementById("destinoNabera").value.trim();
     listaId = "listaNabera";
   } else if (tipo === 'NossoTom') {
     nome = document.getElementById("nomeNossoTom").value.trim();
     qtd = parseInt(document.getElementById("qtdNossoTom").value);
+    destino = document.getElementById("destinoNossoTom").value.trim();
     listaId = "listaNossoTom";
   } else if (tipo === 'Disponiveis') {
     nome = 'Abadás Disponíveis';
@@ -157,19 +161,20 @@ function adicionarOuSomar(tipo) {
 
   if (!nome || isNaN(qtd)) return;
   const lista = document.getElementById(listaId);
+  const key = tipo === 'Nabera' || tipo === 'NossoTom' ? `${nome}|${destino}` : nome;
   const itens = Array.from(lista.children);
-  const existente = itens.find(li => li.dataset.nome === nome);
+  const existente = itens.find(li => li.dataset.key === key);
 
   if (existente) {
     const atual = parseInt(existente.dataset.qtd);
     const novo = atual + qtd;
     existente.dataset.qtd = novo;
-    existente.firstChild.textContent = `${nome}: ${novo} ${tipo === 'Ingressos' ? 'ingresso(s)' : tipo === 'Nabera' || tipo === 'NossoTom' ? 'liberação(ões)' : 'unidade(s)'}`;
+    existente.firstChild.textContent = `${nome}${destino ? ' → ' + destino : ''}: ${novo} ${tipo === 'Ingressos' ? 'ingresso(s)' : tipo === 'Nabera' || tipo === 'NossoTom' ? 'liberação(ões)' : 'unidade(s)'}`;
   } else {
     const li = document.createElement("li");
-    li.dataset.nome = nome;
+    li.dataset.key = key;
     li.dataset.qtd = qtd;
-    li.innerHTML = `${nome}: ${qtd} ${tipo === 'Ingressos' ? 'ingresso(s)' : tipo === 'Nabera' || tipo === 'NossoTom' ? 'liberação(ões)' : 'unidade(s)'} <button class='delete-btn' onclick='this.parentElement.remove()'>Excluir</button>`;
+    li.innerHTML = `${nome}${destino ? ' → ' + destino : ''}: ${qtd} ${tipo === 'Ingressos' ? 'ingresso(s)' : tipo === 'Nabera' || tipo === 'NossoTom' ? 'liberação(ões)' : 'unidade(s)'} <button class='delete-btn' onclick='this.parentElement.remove()'>Excluir</button>`;
     lista.appendChild(li);
   }
 
@@ -180,9 +185,11 @@ function adicionarOuSomar(tipo) {
   } else if (tipo === 'Nabera') {
     document.getElementById("nomeNabera").value = "";
     document.getElementById("qtdNabera").value = "";
+    document.getElementById("destinoNabera").value = "";
   } else if (tipo === 'NossoTom') {
     document.getElementById("nomeNossoTom").value = "";
     document.getElementById("qtdNossoTom").value = "";
+    document.getElementById("destinoNossoTom").value = "";
   } else if (tipo === 'Disponiveis') {
     document.getElementById("abadasDisponiveis").value = "";
   } else if (tipo === 'Entregues') {
