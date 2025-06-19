@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -48,22 +47,31 @@
   <div class="section">
     <h2>Abadás Disponíveis</h2>
     <input type="number" id="abadás" placeholder="Total de abadás">
+    <button class="btn" onclick="atualizarAbadas()">Adicionar</button>
+    <h3>Abadás Entregues</h3>
+    <input type="number" id="abadasEntregues" placeholder="Quantidade de abadás já entregues">
   </div>
 
   <div class="section">
     <h2>Observações</h2>
-    <textarea id="observacoes" rows="4" placeholder="Digite aqui..."></textarea>
+    <textarea id="novaObservacao" rows="2" placeholder="Digite aqui..."></textarea>
+    <button class="btn" onclick="adicionarObservacao()">Adicionar</button>
+    <ul id="listaObservacoes"></ul>
   </div>
 
   <div class="section">
     <button class="btn" onclick="gerarRelatorio()">Gerar Borderô</button>
+    <button class="btn" onclick="exportarPDF()">Exportar PDF</button>
     <pre id="relatorio"></pre>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     const ingressos = [];
-    const nabera = [];
-    const tom = [];
+    const nabera = {};
+    const tom = {};
+    let totalAbadas = 0;
+    let observacoes = [];
 
     function adicionarIngresso() {
       const setor = document.getElementById('setor').value;
@@ -80,8 +88,8 @@
       const nome = document.getElementById('liberadorNabera').value;
       const qtd = parseInt(document.getElementById('qtdLibNabera').value);
       if (nome && qtd > 0) {
-        nabera.push({ nome, qtd });
-        atualizarLista('listaNabera', nabera.map(n => `${n.nome}: ${n.qtd} liberações`));
+        nabera[nome] = (nabera[nome] || 0) + qtd;
+        atualizarLista('listaNabera', Object.entries(nabera).map(([nome, qtd]) => `${nome}: ${qtd} liberações`));
         document.getElementById('liberadorNabera').value = '';
         document.getElementById('qtdLibNabera').value = '';
       }
@@ -91,10 +99,24 @@
       const nome = document.getElementById('liberadorTom').value;
       const qtd = parseInt(document.getElementById('qtdLibTom').value);
       if (nome && qtd > 0) {
-        tom.push({ nome, qtd });
-        atualizarLista('listaTom', tom.map(t => `${t.nome}: ${t.qtd} liberações`));
+        tom[nome] = (tom[nome] || 0) + qtd;
+        atualizarLista('listaTom', Object.entries(tom).map(([nome, qtd]) => `${nome}: ${qtd} liberações`));
         document.getElementById('liberadorTom').value = '';
         document.getElementById('qtdLibTom').value = '';
+      }
+    }
+
+    function atualizarAbadas() {
+      totalAbadas = parseInt(document.getElementById('abadás').value) || 0;
+      alert("Total de abadás atualizado para: " + totalAbadas);
+    }
+
+    function adicionarObservacao() {
+      const texto = document.getElementById('novaObservacao').value;
+      if (texto.trim()) {
+        observacoes.push(texto.trim());
+        atualizarLista('listaObservacoes', observacoes);
+        document.getElementById('novaObservacao').value = '';
       }
     }
 
@@ -109,11 +131,11 @@
     }
 
     function gerarRelatorio() {
-      let totalIngressos = ingressos.reduce((acc, i) => acc + i.qtd, 0);
-      let totalNabera = nabera.reduce((acc, n) => acc + n.qtd, 0);
-      let totalTom = tom.reduce((acc, t) => acc + t.qtd, 0);
-      let abadas = document.getElementById('abadás').value || 'Não informado';
-      let obs = document.getElementById('observacoes').value;
+      const totalIngressos = ingressos.reduce((acc, i) => acc + i.qtd, 0);
+      const totalNabera = Object.values(nabera).reduce((acc, qtd) => acc + qtd, 0);
+      const totalTom = Object.values(tom).reduce((acc, qtd) => acc + qtd, 0);
+      const entregues = parseInt(document.getElementById('abadasEntregues').value) || 0;
+      const estoque = totalAbadas - entregues;
 
       let relatorio = `📋 RELATÓRIO BORDERÔ – Feijoada do Nosso Tom
 `;
@@ -131,7 +153,7 @@
 
       relatorio += `🔓 LIBERAÇÕES – NABÊRA:
 `;
-      nabera.forEach(n => relatorio += `- ${n.nome}: ${n.qtd} liberações
+      Object.entries(nabera).forEach(([nome, qtd]) => relatorio += `- ${nome}: ${qtd} liberações
 `);
       relatorio += `✅ Total Geral: ${totalNabera} liberações
 
@@ -139,19 +161,46 @@
 
       relatorio += `🎤 LIBERAÇÕES – BANDA NOSSO TOM:
 `;
-      tom.forEach(t => relatorio += `- ${t.nome}: ${t.qtd} liberações
+      Object.entries(tom).forEach(([nome, qtd]) => relatorio += `- ${nome}: ${qtd} liberações
 `);
       relatorio += `✅ Total Geral: ${totalTom} liberações
 
 `;
 
-      relatorio += `🧢 ABADÁS DISPONÍVEIS: ${abadas}
+      relatorio += `🧢 ABADÁS PRODUZIDOS: ${totalAbadas}
+`;
+      relatorio += `📦 ABADÁS ENTREGUES: ${entregues}
+`;
+      relatorio += `📊 ABADÁS EM ESTOQUE: ${estoque}
 
 `;
+
       relatorio += `📝 OBSERVAÇÕES:
-${obs}`;
+`;
+      observacoes.forEach(obs => relatorio += `- ${obs}
+`);
 
       document.getElementById('relatorio').textContent = relatorio;
+    }
+
+    function exportarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const texto = document.getElementById('relatorio').textContent;
+      const linhas = texto.split('
+');
+
+      let y = 10;
+      linhas.forEach(linha => {
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+        doc.text(linha, 10, y);
+        y += 8;
+      });
+
+      doc.save("bordero-nosso-tom.pdf");
     }
   </script>
 </body>
