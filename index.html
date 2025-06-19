@@ -60,61 +60,6 @@
   <h1>Controle de Borderô - Feijoada do Nosso Tom</h1>
 
   <div class="section">
-    <h2>Ingressos Vendidos na Bilheteria</h2>
-    <input type="text" id="setorBilheteria" placeholder="Setor (ex: Pista, Camarote)" onkeypress="if(event.key==='Enter') adicionarOuSomar('Bilheteria')" />
-    <input type="number" id="qtdBilheteria" placeholder="Quantidade" onkeypress="if(event.key==='Enter') adicionarOuSomar('Bilheteria')" />
-    <button class="btn" onclick="adicionarOuSomar('Bilheteria')">Adicionar</button>
-    <ul id="listaBilheteria"></ul>
-    <div class="total">Total: <span id="totalBilheteria">0</span></div>
-  </div>
-
-  <!-- Outras seções seguem aqui como no código anterior -->
-
-<script>
-  function adicionarOuSomar(tipo) {
-    let nome, qtd, listaId, totalId;
-    if (tipo === 'Bilheteria') {
-      nome = document.getElementById("setorBilheteria").value.trim();
-      qtd = parseInt(document.getElementById("qtdBilheteria").value);
-      listaId = "listaBilheteria";
-      totalId = "totalBilheteria";
-    }
-    if (!nome || isNaN(qtd)) return;
-    const lista = document.getElementById(listaId);
-    const itens = Array.from(lista.children);
-    const existente = itens.find(li => li.dataset.nome === nome);
-    if (existente) {
-      const atual = parseInt(existente.dataset.qtd);
-      const novo = atual + qtd;
-      existente.dataset.qtd = novo;
-      existente.firstChild.textContent = `${nome}: ${novo} ingresso(s)`;
-    } else {
-      const li = document.createElement("li");
-      li.dataset.nome = nome;
-      li.dataset.qtd = qtd;
-      li.innerHTML = `${nome}: ${qtd} ingresso(s) <button class='delete-btn' onclick='this.parentElement.remove();atualizarTotal("${listaId}", "${totalId}")'>Excluir</button>`;
-      lista.appendChild(li);
-    }
-    if (tipo === 'Bilheteria') {
-      document.getElementById("setorBilheteria").value = "";
-      document.getElementById("qtdBilheteria").value = "";
-    }
-    atualizarTotal(listaId, totalId);
-  }
-
-  function atualizarTotal(listaId, totalId) {
-    const lista = document.getElementById(listaId);
-    let total = 0;
-    for (let item of lista.children) {
-      total += parseInt(item.dataset.qtd || 0);
-    }
-    document.getElementById(totalId).innerText = total;
-  }
-</script>
-</body>
-</html>
-  <!-- Ingressos -->
-  <div class="section">
     <h2>Ingressos Vendidos Antecipados</h2>
     <input id="setorInput" placeholder="Setor (Ex: Pista, Camarote)" onkeydown="if(event.key==='Enter') adicionarOuSomar('Ingressos')">
     <input type="number" id="qtdIngressoInput" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('Ingressos')">
@@ -123,7 +68,15 @@
     <div class="total">Total: <span id="totalIngressos">0</span></div>
   </div>
 
-  <!-- Liberação Nabera -->
+  <div class="section">
+    <h2>Ingressos Vendidos na Bilheteria</h2>
+    <input id="setorBilheteria" placeholder="Setor (Ex: Pista, Camarote)" onkeydown="if(event.key==='Enter') adicionarOuSomar('Bilheteria')">
+    <input type="number" id="qtdBilheteria" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('Bilheteria')">
+    <button class="btn" onclick="adicionarOuSomar('Bilheteria')">Adicionar</button>
+    <ul id="listaBilheteria"></ul>
+    <div class="total">Total: <span id="totalBilheteria">0</span></div>
+  </div>
+
   <div class="section">
     <h2>Liberações Nabêra</h2>
     <input id="nomeNabera" placeholder="Nome de quem liberou" onkeydown="if(event.key==='Enter') adicionarOuSomar('Nabera')">
@@ -133,7 +86,6 @@
     <ul id="listaNabera"></ul>
   </div>
 
-  <!-- Liberação Nosso Tom -->
   <div class="section">
     <h2>Liberações Nosso Tom</h2>
     <input id="nomeNossoTom" placeholder="Nome de quem liberou" onkeydown="if(event.key==='Enter') adicionarOuSomar('NossoTom')">
@@ -143,7 +95,6 @@
     <ul id="listaNossoTom"></ul>
   </div>
 
-  <!-- Abadás disponíveis -->
   <div class="section">
     <h2>Abadás Disponíveis</h2>
     <input type="number" id="abadasDisponiveis" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('Disponiveis')">
@@ -151,7 +102,6 @@
     <ul id="listaDisponiveis"></ul>
   </div>
 
-  <!-- Abadás entregues -->
   <div class="section">
     <h2>Abadás Entregues</h2>
     <input type="number" id="abadasEntregues" placeholder="Quantidade" onkeydown="if(event.key==='Enter') adicionarOuSomar('Entregues')">
@@ -159,7 +109,6 @@
     <ul id="listaEntregues"></ul>
   </div>
 
-  <!-- Observações -->
   <div class="section">
     <h2>Observações</h2>
     <textarea id="obsInput" placeholder="Digite uma observação" onkeydown="if(event.key==='Enter') adicionarOuSomar('Obs')"></textarea>
@@ -174,11 +123,17 @@
 
 <script>
 function adicionarOuSomar(tipo) {
-  let nome, qtd, destino = '', listaId;
+  let nome, qtd, destino = '', listaId, totalId;
   if (tipo === 'Ingressos') {
     nome = document.getElementById("setorInput").value.trim();
     qtd = parseInt(document.getElementById("qtdIngressoInput").value);
     listaId = "listaIngressos";
+    totalId = "totalIngressos";
+  } else if (tipo === 'Bilheteria') {
+    nome = document.getElementById("setorBilheteria").value.trim();
+    qtd = parseInt(document.getElementById("qtdBilheteria").value);
+    listaId = "listaBilheteria";
+    totalId = "totalBilheteria";
   } else if (tipo === 'Nabera') {
     nome = document.getElementById("nomeNabera").value.trim();
     qtd = parseInt(document.getElementById("qtdNabera").value);
@@ -215,7 +170,7 @@ function adicionarOuSomar(tipo) {
 
   if (!nome || isNaN(qtd)) return;
   const lista = document.getElementById(listaId);
-  const key = tipo === 'Nabera' || tipo === 'NossoTom' ? `${nome}|${destino}` : nome;
+  const key = destino ? `${nome}|${destino}` : nome;
   const itens = Array.from(lista.children);
   const existente = itens.find(li => li.dataset.key === key);
 
@@ -223,19 +178,23 @@ function adicionarOuSomar(tipo) {
     const atual = parseInt(existente.dataset.qtd);
     const novo = atual + qtd;
     existente.dataset.qtd = novo;
-    existente.firstChild.textContent = `${nome}${destino ? ' → ' + destino : ''}: ${novo} ${tipo === 'Ingressos' ? 'ingresso(s)' : tipo === 'Nabera' || tipo === 'NossoTom' ? 'liberação(ões)' : 'unidade(s)'}`;
+    existente.firstChild.textContent = `${nome}${destino ? ' → ' + destino : ''}: ${novo}`;
   } else {
     const li = document.createElement("li");
     li.dataset.key = key;
     li.dataset.qtd = qtd;
-    li.innerHTML = `${nome}${destino ? ' → ' + destino : ''}: ${qtd} ${tipo === 'Ingressos' ? 'ingresso(s)' : tipo === 'Nabera' || tipo === 'NossoTom' ? 'liberação(ões)' : 'unidade(s)'} <button class='delete-btn' onclick='this.parentElement.remove()'>Excluir</button>`;
+    li.innerHTML = `${nome}${destino ? ' → ' + destino : ''}: ${qtd} <button class='delete-btn' onclick='this.parentElement.remove()'>Excluir</button>`;
     lista.appendChild(li);
   }
 
   if (tipo === 'Ingressos') {
     document.getElementById("setorInput").value = "";
     document.getElementById("qtdIngressoInput").value = "";
-    atualizarTotal("listaIngressos", "totalIngressos");
+    atualizarTotal(listaId, totalId);
+  } else if (tipo === 'Bilheteria') {
+    document.getElementById("setorBilheteria").value = "";
+    document.getElementById("qtdBilheteria").value = "";
+    atualizarTotal(listaId, totalId);
   } else if (tipo === 'Nabera') {
     document.getElementById("nomeNabera").value = "";
     document.getElementById("qtdNabera").value = "";
@@ -264,11 +223,19 @@ function gerarBorderoNaTela() {
   const borderoWindow = window.open('', '_blank');
   borderoWindow.document.write('<html><head><title>Borderô</title></head><body>');
   borderoWindow.document.write('<h1>Borderô - Feijoada do Nosso Tom</h1>');
-  const sections = ['Ingressos', 'Nabera', 'NossoTom', 'Disponiveis', 'Entregues', 'Obs'];
-  sections.forEach(id => {
-    const lista = document.getElementById(`lista${id}`);
+  const sections = [
+    { id: 'listaIngressos', title: 'Ingressos Vendidos Antecipados' },
+    { id: 'listaBilheteria', title: 'Ingressos Vendidos na Bilheteria' },
+    { id: 'listaNabera', title: 'Liberações Nabêra' },
+    { id: 'listaNossoTom', title: 'Liberações Nosso Tom' },
+    { id: 'listaDisponiveis', title: 'Abadás Disponíveis' },
+    { id: 'listaEntregues', title: 'Abadás Entregues' },
+    { id: 'listaObs', title: 'Observações' }
+  ];
+  sections.forEach(sec => {
+    const lista = document.getElementById(sec.id);
     if (lista.children.length > 0) {
-      borderoWindow.document.write(`<h2>${lista.previousElementSibling.innerText}</h2><ul>`);
+      borderoWindow.document.write(`<h2>${sec.title}</h2><ul>`);
       for (let item of lista.children) {
         borderoWindow.document.write(`<li>${item.innerText.replace('Excluir','')}</li>`);
       }
@@ -289,6 +256,7 @@ async function exportarPDF() {
 
   const sections = [
     { id: 'listaIngressos', title: 'Ingressos Vendidos Antecipados' },
+    { id: 'listaBilheteria', title: 'Ingressos Vendidos na Bilheteria' },
     { id: 'listaNabera', title: 'Liberações Nabêra' },
     { id: 'listaNossoTom', title: 'Liberações Nosso Tom' },
     { id: 'listaDisponiveis', title: 'Abadás Disponíveis' },
