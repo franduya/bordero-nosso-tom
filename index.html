@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Borderô - Feijoada do Nosso Tom</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+    h1, h2 { color: #8B0000; }
+    input, textarea, select, button { margin: 5px 0; padding: 8px; width: 100%; }
+    .section { margin-bottom: 30px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background-color: #f2f2f2; }
+    .btn { background-color: #8B0000; color: white; border: none; cursor: pointer; }
+    .btn:hover { opacity: 0.9; }
+    pre { background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Controle de Borderô - Feijoada do Nosso Tom</h1>
+
+  <div class="section">
+    <h2>Ingressos Vendidos Antecipados</h2>
+    <input type="text" id="setor" placeholder="Setor (Ex: Pista, Camarote)">
+    <input type="number" id="qtdIngresso" placeholder="Quantidade">
+    <button class="btn" onclick="adicionarIngresso()">Adicionar</button>
+    <ul id="listaIngressos"></ul>
+  </div>
+
+  <div class="section">
+    <h2>Liberações NABÊRA</h2>
+    <input type="text" id="liberadorNabera" placeholder="Nome do responsável (Nabêra)">
+    <input type="number" id="qtdLibNabera" placeholder="Quantidade de liberações">
+    <button class="btn" onclick="adicionarLiberacaoNabera()">Adicionar</button>
+    <ul id="listaNabera"></ul>
+  </div>
+
+  <div class="section">
+    <h2>Liberações Nosso Tom</h2>
+    <input type="text" id="liberadorTom" placeholder="Nome do integrante da banda">
+    <input type="number" id="qtdLibTom" placeholder="Quantidade de liberações">
+    <button class="btn" onclick="adicionarLiberacaoTom()">Adicionar</button>
+    <ul id="listaTom"></ul>
+  </div>
+
+  <div class="section">
+    <h2>Abadás Disponíveis</h2>
+    <input type="number" id="abadás" placeholder="Total de abadás">
+  </div>
+
+  <div class="section">
+    <h2>Observações</h2>
+    <textarea id="observacoes" rows="4" placeholder="Digite aqui..."></textarea>
+  </div>
+
+  <div class="section">
+    <button class="btn" onclick="gerarRelatorio()">Gerar Borderô</button>
+    <pre id="relatorio"></pre>
+  </div>
+
+  <script>
+    const ingressos = [];
+    const nabera = [];
+    const tom = [];
+
+    function adicionarIngresso() {
+      const setor = document.getElementById('setor').value;
+      const qtd = parseInt(document.getElementById('qtdIngresso').value);
+      if (setor && qtd > 0) {
+        ingressos.push({ setor, qtd });
+        atualizarLista('listaIngressos', ingressos.map(i => `${i.setor}: ${i.qtd} ingressos`));
+        document.getElementById('setor').value = '';
+        document.getElementById('qtdIngresso').value = '';
+      }
+    }
+
+    function adicionarLiberacaoNabera() {
+      const nome = document.getElementById('liberadorNabera').value;
+      const qtd = parseInt(document.getElementById('qtdLibNabera').value);
+      if (nome && qtd > 0) {
+        nabera.push({ nome, qtd });
+        atualizarLista('listaNabera', nabera.map(n => `${n.nome}: ${n.qtd} liberações`));
+        document.getElementById('liberadorNabera').value = '';
+        document.getElementById('qtdLibNabera').value = '';
+      }
+    }
+
+    function adicionarLiberacaoTom() {
+      const nome = document.getElementById('liberadorTom').value;
+      const qtd = parseInt(document.getElementById('qtdLibTom').value);
+      if (nome && qtd > 0) {
+        tom.push({ nome, qtd });
+        atualizarLista('listaTom', tom.map(t => `${t.nome}: ${t.qtd} liberações`));
+        document.getElementById('liberadorTom').value = '';
+        document.getElementById('qtdLibTom').value = '';
+      }
+    }
+
+    function atualizarLista(id, arr) {
+      const el = document.getElementById(id);
+      el.innerHTML = '';
+      arr.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    }
+
+    function gerarRelatorio() {
+      let totalIngressos = ingressos.reduce((acc, i) => acc + i.qtd, 0);
+      let totalNabera = nabera.reduce((acc, n) => acc + n.qtd, 0);
+      let totalTom = tom.reduce((acc, t) => acc + t.qtd, 0);
+      let abadas = document.getElementById('abadás').value || 'Não informado';
+      let obs = document.getElementById('observacoes').value;
+
+      let relatorio = `📋 RELATÓRIO BORDERÔ – Feijoada do Nosso Tom
+`;
+      relatorio += `Data de geração: ${new Date().toLocaleString('pt-BR')}
+
+`;
+
+      relatorio += `🎫 INGRESSOS VENDIDOS ANTECIPADOS:
+`;
+      ingressos.forEach(i => relatorio += `- ${i.setor}: ${i.qtd}
+`);
+      relatorio += `✅ Total Geral: ${totalIngressos} ingressos
+
+`;
+
+      relatorio += `🔓 LIBERAÇÕES – NABÊRA:
+`;
+      nabera.forEach(n => relatorio += `- ${n.nome}: ${n.qtd} liberações
+`);
+      relatorio += `✅ Total Geral: ${totalNabera} liberações
+
+`;
+
+      relatorio += `🎤 LIBERAÇÕES – BANDA NOSSO TOM:
+`;
+      tom.forEach(t => relatorio += `- ${t.nome}: ${t.qtd} liberações
+`);
+      relatorio += `✅ Total Geral: ${totalTom} liberações
+
+`;
+
+      relatorio += `🧢 ABADÁS DISPONÍVEIS: ${abadas}
+
+`;
+      relatorio += `📝 OBSERVAÇÕES:
+${obs}`;
+
+      document.getElementById('relatorio').textContent = relatorio;
+    }
+  </script>
+</body>
+</html>
