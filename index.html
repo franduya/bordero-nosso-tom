@@ -59,6 +59,60 @@
 <body>
   <h1>Controle de Borderô - Feijoada do Nosso Tom</h1>
 
+  <div class="section">
+    <h2>Ingressos Vendidos na Bilheteria</h2>
+    <input type="text" id="setorBilheteria" placeholder="Setor (ex: Pista, Camarote)" onkeypress="if(event.key==='Enter') adicionarOuSomar('Bilheteria')" />
+    <input type="number" id="qtdBilheteria" placeholder="Quantidade" onkeypress="if(event.key==='Enter') adicionarOuSomar('Bilheteria')" />
+    <button class="btn" onclick="adicionarOuSomar('Bilheteria')">Adicionar</button>
+    <ul id="listaBilheteria"></ul>
+    <div class="total">Total: <span id="totalBilheteria">0</span></div>
+  </div>
+
+  <!-- Outras seções seguem aqui como no código anterior -->
+
+<script>
+  function adicionarOuSomar(tipo) {
+    let nome, qtd, listaId, totalId;
+    if (tipo === 'Bilheteria') {
+      nome = document.getElementById("setorBilheteria").value.trim();
+      qtd = parseInt(document.getElementById("qtdBilheteria").value);
+      listaId = "listaBilheteria";
+      totalId = "totalBilheteria";
+    }
+    if (!nome || isNaN(qtd)) return;
+    const lista = document.getElementById(listaId);
+    const itens = Array.from(lista.children);
+    const existente = itens.find(li => li.dataset.nome === nome);
+    if (existente) {
+      const atual = parseInt(existente.dataset.qtd);
+      const novo = atual + qtd;
+      existente.dataset.qtd = novo;
+      existente.firstChild.textContent = `${nome}: ${novo} ingresso(s)`;
+    } else {
+      const li = document.createElement("li");
+      li.dataset.nome = nome;
+      li.dataset.qtd = qtd;
+      li.innerHTML = `${nome}: ${qtd} ingresso(s) <button class='delete-btn' onclick='this.parentElement.remove();atualizarTotal("${listaId}", "${totalId}")'>Excluir</button>`;
+      lista.appendChild(li);
+    }
+    if (tipo === 'Bilheteria') {
+      document.getElementById("setorBilheteria").value = "";
+      document.getElementById("qtdBilheteria").value = "";
+    }
+    atualizarTotal(listaId, totalId);
+  }
+
+  function atualizarTotal(listaId, totalId) {
+    const lista = document.getElementById(listaId);
+    let total = 0;
+    for (let item of lista.children) {
+      total += parseInt(item.dataset.qtd || 0);
+    }
+    document.getElementById(totalId).innerText = total;
+  }
+</script>
+</body>
+</html>
   <!-- Ingressos -->
   <div class="section">
     <h2>Ingressos Vendidos Antecipados</h2>
